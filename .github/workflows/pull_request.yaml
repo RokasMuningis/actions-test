@@ -1,0 +1,26 @@
+name: Pull Request Lint
+
+on:
+  pull_request:
+
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run eslint
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: yarn
+      - run: yarn eslint
+  jest:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run jest
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v2
+      with:
+          node-version: '12'
+    - run: yarn
+    - run: yarn test
