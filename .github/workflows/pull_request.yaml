@@ -5,8 +5,8 @@ on: [pull_request]
 jobs:
   eslint:
     runs-on: ubuntu-latest
+    - name: Run eslint
     steps:
-      - name: Run eslint
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
@@ -15,8 +15,8 @@ jobs:
       - run: yarn eslint
   jest:
     runs-on: ubuntu-latest
+    - name: Run jest
     steps:
-      - name: Run jest
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v2
         with:
