@@ -7,27 +7,65 @@ jobs:
     name: Run eslint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup node@12
+        uses: actions/setup-node@v2
         with:
           node-version: '12'
-      - uses: actions/cache@v2
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
       - run: yarn eslint
   jest:
     name: Run jest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup node@12
+        uses: actions/setup-node@v2
         with:
             node-version: '12'
-      - uses: actions/cache@v2
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
       - run: yarn test
+  translations_check:
+    name: Check translations files
+    outputs:
+      run_job: ${{ steps.check_files.outputs.run_job }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: check modified files
+        id: check_files
+        run: |
+          echo "=============== list modified files ==============="
+          git diff --name-only HEAD^ HEAD
+          
+          echo "========== check paths of modified files =========="
+          git diff --name-only HEAD^ HEAD > files.txt
+          while IFS= read -r file
+          do
+            echo $file
+            if [[ $file != src/translations/* ]]; then
+              echo "::set-output name=run_job::false"
+              break
+            else
+              echo "::set-output name=run_job::true"
+            fi
+          done < files.txt
+  translations:
+    name: Check translations
+    runs-on: ubuntu-latest
+    needs: translations_check
+    if: needs.translations_check.outputs.run_job == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup node@12
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: yarn
+      - run: echo "mock"
