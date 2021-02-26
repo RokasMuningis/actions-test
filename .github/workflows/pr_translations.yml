@@ -1,0 +1,6 @@
+name: Pull Request Translations Check
+
+on:
+  pull_request
+    paths:
+      - 'src/translations'
